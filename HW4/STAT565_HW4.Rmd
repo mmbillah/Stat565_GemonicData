@@ -1,0 +1,136 @@
+---
+title: "HW 4"
+author: "Namrata Ray, Jugal Marfatia, Md Muhtasim Billah"
+date: "11/14/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+
+## Importing the data
+
+```{r warning=FALSE, message=FALSE}
+#setting working directory
+setwd("/Users/muhtasim/Desktop/myRfolder/ling")
+getwd()
+# check content of working directory
+dir()
+#loading the necessary libraries
+library(limma)
+library(affy)
+#reading the data
+abatch=ReadAffy()
+```
+
+## Writing the design and contrast matrix
+
+```{r warning=FALSE, message=FALSE}
+#design matrix for the given problem
+#limma writes the design matrix columnwise
+design=matrix(c(1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1),nrow=8)
+design
+
+#defining the contrast matrix for the given problem
+contrastMatrix=matrix(c(
+  + 1,1,-1,-1,
+  + -1,1,-1,1,
+  + 1,-1, -1,1),nrow=ncol(design))
+contrastNames=c("DOM-WT","M-F","INT")   
+#INT=interaction,M-F=male-female,DOM-WT=domesticated/wild-type
+colnames(contrastMatrix)=contrastNames
+contrastMatrix
+```
+
+## Analyzing the data
+```{r warning=FALSE, message=FALSE}
+#normalizing the data
+eset=rma(abatch)
+#using linear model and design matrix to fit the data
+fit=lmFit(eset,design=design)
+#calculating the contrasts to compare among trts
+fit2=contrasts.fit(fit,contrasts=contrastMatrix)
+names(fit2)
+#empirical Bayes' fit  
+fit3=eBayes(fit2)
+```
+
+## Plotting the top tables using FDR
+
+```{r warning=FALSE, message=FALSE}
+#getting the toptable
+topTable(fit3,coef="DOM-WT",adjust="fdr")
+
+topTable(fit3,coef="M-F",adjust="fdr")
+
+topTable(fit3,coef="INT",adjust="fdr")
+```
+
+## Showing the Venn diagram to show the genes in common
+
+```{r warning=FALSE, message=FALSE}
+F.stat=fit3$F
+p.value=fit3$F.p.value
+results=classifyTestsF(fit3,p.value=1.0E-2)
+#Venn Diagram of results
+vennDiagram(results,names=c("DOM-WT","M-F","INT"))
+```
+
+
+
+\section{Question 2}
+\begin{tabular}{llllllll}
+\hline
+\multicolumn{1}{|l|}{A1B1} & \multicolumn{1}{l|}{A2B1} & \multicolumn{1}{l|}{A1B2} & \multicolumn{1}{l|}{A2B2} & \multicolumn{1}{l|}{A1B3} & \multicolumn{1}{l|}{A2B3} & \multicolumn{1}{l|}{A1B4} & \multicolumn{1}{l|}{A2B4} \\ \hline
+1                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+1                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 1                         & 0                          \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 1                          \\
+
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 1                       \\
+\hline
+\end{tabular}
+
+The Contrast matrix 1 is : (1, -1, 0, 0, 0, 0, 0, 0)
+The Contrast matrix 2 is : (-1/6, -1/6, -1/6, -1/6, 1/2, 1/2, -1/6, -1/6)
+
+\newpage
+\section{Question 3}
+\begin{tabular}{llllllll}
+\hline
+\multicolumn{1}{|l|}{A1B1C1} & \multicolumn{1}{l|}{A1B1C2} & \multicolumn{1}{l|}{A1B2C1} & \multicolumn{1}{l|}{A1B2C2} & \multicolumn{1}{l|}{A2B1C1} & \multicolumn{1}{l|}{A2B1C2} & \multicolumn{1}{l|}{A2B2C1} & \multicolumn{1}{l|}{A2B2C2} \\ \hline
+1                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+1                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 1                         & 0                         \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 1                         & 0                          \\
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 1                         \\
+
+0                          & 0                         & 0                         & 0                         & 0                         & 0                         & 0                         & 1                       \\
+\hline
+
+\end{tabular}
+

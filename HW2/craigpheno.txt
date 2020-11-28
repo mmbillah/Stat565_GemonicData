@@ -1,0 +1,7 @@
+Name	FileName	Target
+Preg.1	T11.cel	EstPreg
+Preg.2	T12.cel	EstPreg
+Preg.3	T13.cel	EstPreg
+Npreg.1	T21.cel	EstNo
+Npreg.2	T22.cel	EstNo
+Npreg.3	T23.cel	EstNo

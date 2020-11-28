@@ -1,0 +1,93 @@
+---
+title: "Homework 1"
+author: "Md Muhtasim Billah, Jugal Marfatia, Namrata Ray"
+date: "9/17/2019"
+output: pdf_document
+---
+## Question 1.
+
+```{r}
+df = read.csv("hw1.csv")
+
+df$r = (df$PM1 - df$MM1)/(df$PM1+ df$MM1)
+
+df$z = abs(df$r- 0.15)
+
+df$rank = rank(df$r)
+
+df$pos_or_not = ifelse(df$r >= 0, 1 , 0)
+
+print(df)
+```
+### The W is:
+```{r}
+w = sum(df$rank*df$pos_or_not)
+print(w)
+```
+### Conducting the Wilcoxon Test.
+```{r}
+E = length(df) *(length(df)+ 1)/ 4
+SE = sqrt(length(df) *(length(df)+ 1) * (2*length(df)+ 1)/24)
+
+Z_Statstic = (w-E)/ SE
+print(Z_Statstic)
+```
+### The P-Value is:
+```{r}
+2*pnorm(-abs(Z_Statstic))
+```
+### Hypothesis testing:
+Null-Hypothesis: Mean difference $= 0$
+\
+Alternate-Hypothesis: Mean difference $\neq 0$
+\
+P-value $\leq 0.05$
+\
+Therefore, reject the null. (Keeping $\alpha = 0.05$) 
+\
+\
+### Checking with the built-in Pacakge.
+```{r}
+wilcox.test(df$PM1, df$MM1,paired=TRUE)
+```
+###Tukey Biweight method  
+
+```{r}
+y= log2(df$PM1) - log2(df$MM1)
+
+md<-median(y)
+
+z<-abs(y-md)
+
+mz<-median(z)
+
+u<-(y-md)/(5*mz+.0001)
+w<-ifelse(abs(u)<=1,(1-u^2)^2,0)
+table.data=cbind(y,md,z,mz,u,w)
+tuk_avg=sum(y*w)/sum(w)
+tuk_avg
+```
+
+## Question 2.
+###a.
+```{r}
+summary(df$MM1)
+summary(df$PM1)
+```
+###b.
+```{r}
+mean(df$PM1, na.rm = FALSE)
+sd(df$PM1, na.rm = FALSE)
+IQR(df$PM1, na.rm = FALSE)
+```
+###c.
+```{r}
+hist(df$MM1)
+```
+```{r}
+hist(df$PM1)
+```
+### d.
+```{r}
+plot(df$PM1~df$MM1, data=df)
+```
